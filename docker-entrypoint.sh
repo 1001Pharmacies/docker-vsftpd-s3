@@ -18,6 +18,10 @@ PASV_ADDRESS=${PASV_ADDRESS:-$(timeout -t 1 wget -qO- http://169.254.169.254/lat
 PASV_MIN_PORT=${PASV_MIN_PORT:-65000}
 PASV_MAX_PORT=${PASV_MAX_PORT:-65000}
 
+# FTP allowed commands
+# full command list : https://blog.vigilcode.com/2011/08/configure-secure-ftp-with-vsftpd/
+CMDS_ALLOWED=${CMDS_ALLOWED:-ABOR,ALLO,APPE,CCC,CDUP,CWD,LIST,MKD,MLST,MODE,NLST,NOOP,OPTS,PASS,PASV,PBSZ,PWD,QUIT,REIN,REST,RNFR,RNTO,SITE,SIZE,STAT,STOR,STRU,SYST,TYPE,USER}
+
 # Create FTP user
 adduser -h /home/${FTP_USER} -s /sbin/nologin -D ${FTP_USER}
 echo "${FTP_USER}:${FTP_PASS}" | chpasswd 2> /dev/null
@@ -31,6 +35,7 @@ local_enable=YES
 write_enable=YES
 chroot_local_user=YES
 allow_writeable_chroot=YES
+cmds_allowed=$CMDS_ALLOWED
 pasv_enable=YES
 pasv_promiscuous=YES
 pasv_min_port=$PASV_MIN_PORT
