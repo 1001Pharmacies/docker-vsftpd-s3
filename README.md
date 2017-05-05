@@ -12,12 +12,19 @@ AWS_ACCESS_KEY_ID=               # acces key of the AWS user, required
 AWS_SECRET_ACCESS_KEY=           # secret key of the AWS user, required
 S3_BUCKET=                       # the S3 bucket name, required
 S3_ACL=private                   # default to private, optional
-FTP_USER=s3ftp                   # the ftp user, default to s3ftp, optional
-FTP_PASS=s3ftp                   # the ftp password, default to s3ftp, optional
+FTPD_USER=s3ftp                  # the ftp user, default to s3ftp, optional
+FTPD_PASS=s3ftp                  # the ftp password, default to s3ftp, optional
+FTPD_BANNER=                     # the ftp banner
 CMDS_ALLOWED=                    # the ftp allowed commands, default to upload only, no delete or download, optional
 PASV_ADDRESS=                    # the ftp server external IP address, default to the AWS instance public IP, optional
 PASV_MIN_PORT=65000              # the ftp server pasv_min_port, default to 65000, optional
 PASV_MAX_PORT=65000              # the ftp server pasv_max_port, default to 65000, optional
+FTP_SYNC=                        # enable file synchronisation with a remote ftp server
+FTP_HOST=                        # the remote ftp server to sync with
+FTP_USER=                        # the ftp user to connect to remote ftp server
+FTP_PASS=                        # the ftp password to connect to remote ftp server
+REMOTE_DIR=                      # the directory to sync from on the remote ftp server, default to /
+LOCAL_DIR=                       # the directory to sync to on the local server, default to /home/$FTPD_USER
 ```
 
 ## AWS Notes
@@ -60,6 +67,6 @@ $ docker build -t vsftpd-s3 .
 Start a docker from this image.
 
 ```shell
-$ docker run -it --device /dev/fuse --cap-add sys_admin -p 21:21 -p 65000:65000 -e AWS_ACCESS_KEY_ID=ABCDEFGHIJKLMNOPQRST -e AWS_SECRET_ACCESS_KEY=0123456789ABCDEF0123456789ABCDEF01234567 -e S3_BUCKET="my-s3-bucket" -e FTP_USER="my_ftp_user" -e FTP_PASS="my_ftp_password" vsftpd-s3
+$ docker run -it --device /dev/fuse --cap-add sys_admin -p 21:21 -p 65000:65000 -e AWS_ACCESS_KEY_ID=ABCDEFGHIJKLMNOPQRST -e AWS_SECRET_ACCESS_KEY=0123456789ABCDEF0123456789ABCDEF01234567 -e S3_BUCKET="my-s3-bucket" -e FTPD_USER="my_ftp_user" -e FTPD_PASS="my_ftp_password" vsftpd-s3
 ```
 
