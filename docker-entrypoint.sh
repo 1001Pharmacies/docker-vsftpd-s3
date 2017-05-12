@@ -71,7 +71,7 @@ DIR_LOCAL=${DIR_LOCAL:-/home/$FTPD_USER}
 # Sync remote FTP every hour (at random time to allow multiple dockers to run)
 [ "$FTP_SYNC" != "0" ] \
   && MIN=$(awk 'BEGIN { srand(); printf("%d\n",rand()*60)  }') \
-  && ( echo "$MIN * * * * /usr/local/bin/lftp-sync.sh $FTP_HOST $DIR_REMOTE $DIR_LOCAL/retour ^80.*$" ) | crontab -u ${FTPD_USER} - \
+  && ( echo "$MIN * * * * /usr/local/bin/lftp-sync.sh $FTP_HOST $DIR_REMOTE $DIR_LOCAL/retour ^8.*$" ) | crontab -u ${FTPD_USER} - \
   && MIN=$(awk 'BEGIN { srand(); printf("%d\n",rand()*rand()*60)  }') \
   && ( crontab -u ${FTPD_USER} -l && echo "$MIN * * * * /usr/local/bin/lftp-sync.sh $FTP_HOST $DIR_REMOTE $DIR_LOCAL/facture ^INV.*$" ) | crontab -u ${FTPD_USER} - \
   && touch /var/log/lftp-sync.log \

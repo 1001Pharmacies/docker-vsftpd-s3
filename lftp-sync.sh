@@ -1,6 +1,7 @@
 #!/bin/sh
 
-LOG=/var/log/lftp-sync.log
+[ -n "$FTPD_USER" ] && LOGDIR="/home/$FTPD_USER/log" || LOGDIR="/var/log"
+LOG=$LOGDIR/lftp-sync.log
 
 # lock to prevent multiple sync running together
 LOCK="${TMP}/.lock-${0##*/}"
