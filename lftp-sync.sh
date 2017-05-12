@@ -15,6 +15,7 @@ which lftp >/dev/null 2>&1 || exit 1
 [ -n "$1" ] && FTP_HOST="$1"
 [ -n "$2" ] && DIR_REMOTE="$2"
 [ -n "$3" ] && DIR_LOCAL="$3"
+[ -n "$4" ] && FILES="$4"
 
 # check variables
 [ -n "$FTP_HOST" ] && [ -n "$FTP_USER" ] && [ -n "$FTP_PASS" ] || exit 2
@@ -22,9 +23,10 @@ which lftp >/dev/null 2>&1 || exit 1
 # Get files from the remote FTP server and remove them
 lftp ftp://$FTP_USER:$FTP_PASS@$FTP_HOST << EOC
   set ftp:ssl-allow yes
+  set xfer:log-file $LOG
   mirror \
     --Remove-source-files \
-    --log=$LOG \
+    -i "${FILES:-.*}" \
     ${DIR_REMOTE:-/} \
     ${DIR_LOCAL:-~/}
   quit
