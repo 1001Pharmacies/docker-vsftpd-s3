@@ -67,6 +67,6 @@ $ docker build -t vsftpd-s3 .
 Start a docker from this image.
 
 ```shell
-$ docker run -it --device /dev/fuse --cap-add sys_admin -p 21:21 -p 65000:65000 -e AWS_ACCESS_KEY_ID=ABCDEFGHIJKLMNOPQRST -e AWS_SECRET_ACCESS_KEY=0123456789ABCDEF0123456789ABCDEF01234567 -e S3_BUCKET="my-s3-bucket" -e FTPD_USER="my_ftp_user" -e FTPD_PASS="my_ftp_password" vsftpd-s3
+$ docker run -it --device /dev/fuse --cap-add sys_admin --security-opt apparmor:unconfined -p 21:21 -p 65000:65000 -e AWS_ACCESS_KEY_ID=ABCDEFGHIJKLMNOPQRST -e AWS_SECRET_ACCESS_KEY=0123456789ABCDEF0123456789ABCDEF01234567 -e S3_BUCKET="my-s3-bucket" -e FTPD_USER="my_ftp_user" -e FTPD_PASS="my_ftp_password" vsftpd-s3
 ```
 

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-[ -n "$FTPD_USER" ] && LOGDIR="/home/$FTPD_USER/log" || LOGDIR="/var/log"
+[ -d "/home/$FTPD_USER/log" ] && LOGDIR="/home/$FTPD_USER/log" || LOGDIR="/var/log"
 LOG=$LOGDIR/lftp-sync.log
 
 # lock to prevent multiple sync running together
@@ -21,6 +21,9 @@ which lftp >/dev/null 2>&1 || exit 1
 # check variables
 [ -n "$FTP_HOST" ] && [ -n "$FTP_USER" ] && [ -n "$FTP_PASS" ] || exit 2
 
+# check local path
+[ -d ${DIR_LOCAL:-~/} ] || mkdir -p ${DIR_LOCAL:-~/} || exit 3
+
 # Get files from the remote FTP server and remove them
 lftp ftp://$FTP_USER:$FTP_PASS@$FTP_HOST << EOC
   set ftp:ssl-allow yes
@@ -37,4 +40,4 @@ EOC
 rm -f "${LOCK}" 2>/dev/null && trap - HUP INT TERM
 
 # exit
-exit ${exit}
+exit ${exit:-0}
