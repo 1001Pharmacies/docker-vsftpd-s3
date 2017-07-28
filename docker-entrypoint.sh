@@ -1,7 +1,6 @@
 #!/bin/ash
 set -euo pipefail
 set -o errexit
-IFS=$'\n\t'
 
 # VSFTPD PASV configuration
 PASV_ADDRESS=${PASV_ADDRESS:-$(timeout -t 1 wget -qO- http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null ||:)}
@@ -48,19 +47,28 @@ AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-aws_secret_access_key}
 FTPD_USER=${FTPD_USER:-s3ftp}
 FTPD_PASS=${FTPD_PASS:-s3ftp}
 
-# Create FTP user
-adduser -h /home/${FTPD_USER} -s /sbin/nologin -D ${FTPD_USER}
-echo "${FTPD_USER}:${FTPD_PASS}" | chpasswd 2> /dev/null
+# Multi users
+FTPD_USERS=${FTPD_USERS:-${FTPD_USER}:${FTPD_PASS}:${S3_BUCKET}:${AWS_ACCESS_KEY_ID}:${AWS_SECRET_ACCESS_KEY}}
 
-# Configure s3fs
-echo "${AWS_ACCESS_KEY_ID}:${AWS_SECRET_ACCESS_KEY}" > /home/${FTPD_USER}/.passwd-s3fs
-chmod 0400 /home/${FTPD_USER}/.passwd-s3fs
+echo "${FTPD_USERS}" |sed 's/ /\r\n/g' |while read line; do
+  echo ${line//:/ } |while read FTPD_USER FTPD_PASS S3_BUCKET AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY; do
 
-# Mount s3fs
-/usr/bin/s3fs ${S3_BUCKET} /home/${FTPD_USER} -o nosuid,nonempty,nodev,allow_other,passwd_file=/home/${FTPD_USER}/.passwd-s3fs,default_acl=${S3_ACL},retries=5
+    # Create FTP user
+    adduser -h /home/${FTPD_USER} -s /sbin/nologin -D ${FTPD_USER}
+    echo "${FTPD_USER}:${FTPD_PASS}" | chpasswd 2> /dev/null
 
-# Exit docker if the s3 filesystem is not reachable anymore
-( crontab -l && echo "* * * * * timeout -t 3 touch /home/${FTPD_USER}/.test >/dev/null 2>&1 || kill -TERM -1" ) | crontab -
+    # Configure s3fs
+    echo "${AWS_ACCESS_KEY_ID}:${AWS_SECRET_ACCESS_KEY}" > /home/${FTPD_USER}/.passwd-s3fs
+    chmod 0400 /home/${FTPD_USER}/.passwd-s3fs
+
+    # Mount s3fs
+    /usr/bin/s3fs ${S3_BUCKET} /home/${FTPD_USER} -o nosuid,nonempty,nodev,allow_other,passwd_file=/home/${FTPD_USER}/.passwd-s3fs,default_acl=${S3_ACL},retries=5
+
+    # Exit docker if the s3 filesystem is not reachable anymore
+    ( crontab -l && echo "* * * * * timeout -t 3 touch /home/${FTPD_USER}/.test >/dev/null 2>&1 || kill -TERM -1" ) | crontab -
+
+  done
+done
 
 # FTP sync client
 FTP_SYNC=${FTP_SYNC:-0}
