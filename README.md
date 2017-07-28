@@ -27,6 +27,10 @@ REMOTE_DIR=                      # the directory to sync from on the remote ftp 
 LOCAL_DIR=                       # the directory to sync to on the local server, default to /home/$FTPD_USER
 ```
 
+When you need multiple FTPD_USERs to serve multiple S3_BUCKETs, you have to set all variables at once in a list of twopoints separated values.
+
+FTPD_USERS="FTPD_USER_1:FTPD_PASS_1:S3_BUCKET_1:AWS_ACCESS_KEY_ID_1:AWS_SECRET_ACCESS_KEY_1 FTPD_USER_2:FTPD_PASS_2:S3_BUCKET_2:AWS_ACCESS_KEY_ID_2:AWS_SECRET_ACCESS_KEY_2 ..."
+
 ## AWS Notes
 
 ### IAM User
