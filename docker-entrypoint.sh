@@ -48,11 +48,11 @@ FTPD_USER=${FTPD_USER:-s3ftp}
 FTPD_PASS=${FTPD_PASS:-s3ftp}
 
 # Multi users
-FTPD_USERS=${FTPD_USERS:-${FTPD_USER}:${FTPD_PASS}:${S3_BUCKET}:${AWS_ACCESS_KEY_ID}:${AWS_SECRET_ACCESS_KEY}}
+FTPD_USERS=${FTPD_USERS:-${FTPD_USER}::${FTPD_PASS}::${S3_BUCKET}::${AWS_ACCESS_KEY_ID}::${AWS_SECRET_ACCESS_KEY}}
 
 # For each user
 echo "${FTPD_USERS}" |sed 's/ /\n/g' |while read line; do
-  echo ${line//:/ } |while read ftpd_user ftpd_pass s3_bucket aws_access_key_id aws_secret_access_key; do
+  echo ${line//::/ } |while read ftpd_user ftpd_pass s3_bucket aws_access_key_id aws_secret_access_key; do
 
     # Create FTP user
     adduser -h /home/${ftpd_user} -s /sbin/nologin -D ${ftpd_user}
