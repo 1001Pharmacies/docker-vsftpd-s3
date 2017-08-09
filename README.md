@@ -31,6 +31,8 @@ When you need multiple FTPD_USERs to serve multiple S3_BUCKETs, you have to set 
 
 FTPD_USERS="FTPD_USER_1:FTPD_PASS_1:S3_BUCKET_1:AWS_ACCESS_KEY_ID_1:AWS_SECRET_ACCESS_KEY_1 FTPD_USER_2:FTPD_PASS_2:S3_BUCKET_2:AWS_ACCESS_KEY_ID_2:AWS_SECRET_ACCESS_KEY_2 ..."
 
+You can specify values in FTPD_PASS, S3_BUCKET, AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY that will be use as default for FTPD_USERS.
+
 ## AWS Notes
 
 ### IAM User

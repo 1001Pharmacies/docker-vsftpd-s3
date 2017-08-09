@@ -50,22 +50,23 @@ FTPD_PASS=${FTPD_PASS:-s3ftp}
 # Multi users
 FTPD_USERS=${FTPD_USERS:-${FTPD_USER}:${FTPD_PASS}:${S3_BUCKET}:${AWS_ACCESS_KEY_ID}:${AWS_SECRET_ACCESS_KEY}}
 
-echo "${FTPD_USERS}" |sed 's/ /\r\n/g' |while read line; do
-  echo ${line//:/ } |while read FTPD_USER FTPD_PASS S3_BUCKET AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY; do
+# For each user
+echo "${FTPD_USERS}" |sed 's/ /\n/g' |while read line; do
+  echo ${line//:/ } |while read ftpd_user ftpd_pass s3_bucket aws_access_key_id aws_secret_access_key; do
 
     # Create FTP user
-    adduser -h /home/${FTPD_USER} -s /sbin/nologin -D ${FTPD_USER}
-    echo "${FTPD_USER}:${FTPD_PASS}" | chpasswd 2> /dev/null
+    adduser -h /home/${ftpd_user} -s /sbin/nologin -D ${ftpd_user}
+    echo "${ftpd_user}:${ftpd_pass:-$FTPD_PASS}" | chpasswd 2> /dev/null
 
     # Configure s3fs
-    echo "${AWS_ACCESS_KEY_ID}:${AWS_SECRET_ACCESS_KEY}" > /home/${FTPD_USER}/.passwd-s3fs
-    chmod 0400 /home/${FTPD_USER}/.passwd-s3fs
+    echo "${aws_access_key_id:-$AWS_ACCESS_KEY_ID}:${aws_secret_access_key:-$AWS_SECRET_ACCESS_KEY}" > /home/${ftpd_user}/.passwd-s3fs
+    chmod 0400 /home/${ftpd_user}/.passwd-s3fs
 
     # Mount s3fs
-    /usr/bin/s3fs ${S3_BUCKET} /home/${FTPD_USER} -o nosuid,nonempty,nodev,allow_other,passwd_file=/home/${FTPD_USER}/.passwd-s3fs,default_acl=${S3_ACL},retries=5
+    /usr/bin/s3fs ${s3_bucket:-$S3_BUCKET} /home/${ftpd_user} -o nosuid,nonempty,nodev,allow_other,passwd_file=/home/${ftpd_user}/.passwd-s3fs,default_acl=${S3_ACL},retries=5
 
     # Exit docker if the s3 filesystem is not reachable anymore
-    ( crontab -l && echo "* * * * * timeout -t 3 touch /home/${FTPD_USER}/.test >/dev/null 2>&1 || kill -TERM -1" ) | crontab -
+    ( crontab -l && echo "* * * * * timeout -t 3 touch /home/${ftpd_user}/.test >/dev/null 2>&1 || kill -TERM -1" ) | crontab -
 
   done
 done
