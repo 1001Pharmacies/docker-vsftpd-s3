@@ -63,7 +63,7 @@ echo "${FTPD_USERS}" |sed 's/ /\n/g' |while read line; do
     chmod 0400 /home/${ftpd_user}/.passwd-s3fs
 
     # Mount s3fs
-    /usr/bin/s3fs ${s3_bucket:-$S3_BUCKET} /home/${ftpd_user} -o nosuid,nonempty,nodev,allow_other,passwd_file=/home/${ftpd_user}/.passwd-s3fs,default_acl=${S3_ACL},retries=5
+    /usr/bin/s3fs ${s3_bucket:-$S3_BUCKET} /home/${ftpd_user} -o nosuid,nonempty,nodev,allow_other,complement_stat,mp_umask=027,uid=$(id -u ${ftpd_user}),gid=$(id -g ${ftpd_user}),passwd_file=/home/${ftpd_user}/.passwd-s3fs,default_acl=${S3_ACL},retries=5
 
     # Exit docker if the s3 filesystem is not reachable anymore
     ( crontab -l && echo "* * * * * timeout -t 3 touch /home/${ftpd_user}/.test >/dev/null 2>&1 || kill -TERM -1" ) | crontab -
