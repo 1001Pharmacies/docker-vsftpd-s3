@@ -2,6 +2,8 @@
 set -euo pipefail
 set -o errexit
 
+trap 'kill -SIGQUIT $PID' INT
+
 # VSFTPD PASV configuration
 PASV_ADDRESS=${PASV_ADDRESS:-$(timeout -t 1 wget -qO- http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null ||:)}
 PASV_MIN_PORT=${PASV_MIN_PORT:-65000}
@@ -90,4 +92,5 @@ DIR_LOCAL=${DIR_LOCAL:-/home/$FTPD_USER}
 crond -L /var/log/crond.log
 
 # Launch vsftpd
-[ $# -eq 0 ] && /usr/sbin/vsftpd || exec "$@"
+[ $# -eq 0 ] && /usr/sbin/vsftpd || exec "$@" &
+PID=$! && wait
