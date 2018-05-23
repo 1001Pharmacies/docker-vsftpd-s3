@@ -31,6 +31,7 @@ RUN apk add --no-cache \
         libstdc++ \
         libxml2 \
         logrotate \
+        openssl \
         vsftpd
 
 RUN sed -i 's|/var/log/messages|/var/log/*.log|' /etc/logrotate.conf

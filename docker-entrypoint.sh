@@ -14,7 +14,7 @@ FTPD_BANNER=${FTPD_BANNER:-1001Pharmacies FTP Server}
 
 # FTP allowed commands
 # full command list : https://blog.vigilcode.com/2011/08/configure-secure-ftp-with-vsftpd/
-CMDS_ALLOWED=${CMDS_ALLOWED:-ABOR,ALLO,APPE,CCC,CDUP,CWD,DELE,FEAT,HELP,LIST,LPSV,MKD,MLST,MODE,NLST,NOOP,OPTS,PASS,PASV,PBSZ,PORT,PWD,QUIT,REIN,REST,RETR,RMD,RNFR,RNTO,SITE,SIZE,STAT,STOR,STRU,SYST,TYPE,USER}
+CMDS_ALLOWED=${CMDS_ALLOWED:-ABOR,ALLO,APPE,CCC,CDUP,CWD,DELE,EPSV,FEAT,HELP,LIST,LPSV,MKD,MLST,MODE,NLST,NOOP,OPTS,PASS,PASV,PBSZ,PORT,PWD,QUIT,REIN,REST,RETR,RMD,RNFR,RNTO,SITE,SIZE,STAT,STOR,STRU,SYST,TYPE,USER}
 
 # Configure vsftpd
 echo "anonymous_enable=NO
@@ -36,6 +36,31 @@ pasv_promiscuous=YES
 pasv_min_port=$PASV_MIN_PORT
 pasv_max_port=$PASV_MAX_PORT" > /etc/vsftpd.conf
 [ -n "$PASV_ADDRESS" ] && echo "pasv_address=$PASV_ADDRESS" >> /etc/vsftpd.conf
+
+# SSL certificate
+SSL_CERT_C=${SSL_CERT_C:-FR}
+SSL_CERT_ST=${SSL_CERT_ST:-Herault}
+SSL_CERT_L=${SSL_CERT_L:-Montpellier}
+SSL_CERT_O=${SSL_CERT_O:-1001Pharmacies}
+SSL_CERT_OU=${SSL_CERT_OU:-Hosting}
+SSL_CERT_CN=${SSL_CERT_CN:-ftp.1001pharmacies.com}
+
+# Create SSL certificate
+openssl req -x509 -nodes -days 365 -newkey rsa:1024 -subj "/C=${SSL_CERT_C}/ST=${SSL_CERT_ST}/L=${SSL_CERT_L}/O=${SSL_CERT_O}/OU=${SSL_CERT_OU}/CN=${SSL_CERT_CN}" -keyout /etc/ssl/private/vsftpd.pem -out /etc/ssl/private/vsftpd.pem 2>/dev/null && echo "
+rsa_cert_file=/etc/ssl/private/vsftpd.pem
+rsa_private_key_file=/etc/ssl/private/vsftpd.pem
+ssl_enable=YES
+allow_anon_ssl=YES
+force_anon_data_ssl=NO
+force_anon_logins_ssl=NO
+force_local_data_ssl=NO
+force_local_logins_ssl=NO
+ssl_tlsv1=YES
+ssl_sslv2=YES
+ssl_sslv3=YES
+require_cert=NO
+require_ssl_reuse=NO
+ssl_ciphers=HIGH" >> /etc/vsftpd.conf
 
 # Amazon S3 bucket
 S3_ACL=${S3_ACL:-private}
