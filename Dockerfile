@@ -2,7 +2,7 @@ FROM alpine:latest
 LABEL maintainer "yann.autissier@1001pharmacies.com"
 
 # s3fs tag to checkout
-ARG S3FS_VERSION=v1.82
+ARG S3FS_VERSION=v1.83
 
 # Install s3fs binary
 RUN apk add --no-cache --virtual .fuse-builddeps \
