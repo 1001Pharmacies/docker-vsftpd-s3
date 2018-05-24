@@ -98,6 +98,19 @@ echo "${FTPD_USERS}" |sed 's/ /\n/g' |while read line; do
   done
 done
 
+# Enable SFTP
+echo "Protocol 2
+HostKey /etc/ssh/ssh_host_ed25519_key
+HostKey /etc/ssh/ssh_host_rsa_key
+UseDNS no
+PermitRootLogin no
+X11Forwarding no
+AllowTcpForwarding no
+Subsystem sftp internal-sftp
+ForceCommand internal-sftp -d %u
+ChrootDirectory /home
+" > /etc/ssh/sshd_config
+
 # FTP sync client
 FTP_SYNC=${FTP_SYNC:-0}
 FTP_HOST=${FTP_HOST:-localhost}
@@ -116,6 +129,6 @@ DIR_LOCAL=${DIR_LOCAL:-/home/$FTPD_USER}
 # Launch crond
 crond -L /var/log/crond.log
 
-# Launch vsftpd
-[ $# -eq 0 ] && /usr/sbin/vsftpd || exec "$@" &
+# Launch sshd && vsftpd
+[ $# -eq 0 ] && /usr/sbin/sshd -e && /usr/sbin/vsftpd || exec "$@" &
 PID=$! && wait

@@ -1,6 +1,6 @@
 # docker-vsftpd-s3
 
-Alpine based Dockerfile running a vsftpd server providing FTP access to an Amazon S3 bucket.
+Alpine based Dockerfile running a vsftpd server providing secure FTP access to an Amazon S3 bucket.
 This docker image can run in Amazon ECS.
 
 ## Usage
@@ -77,4 +77,10 @@ Start a docker from this image.
 ```shell
 $ docker run -it --device /dev/fuse --cap-add sys_admin --security-opt apparmor:unconfined -p 21:21 -p 65000:65000 -e AWS_ACCESS_KEY_ID=ABCDEFGHIJKLMNOPQRST -e AWS_SECRET_ACCESS_KEY=0123456789ABCDEF0123456789ABCDEF01234567 -e S3_BUCKET="my-s3-bucket" -e FTPD_USER="my_ftp_user" -e FTPD_PASS="my_ftp_password" vsftpd-s3
 ```
+
+## Security notes
+
+Current docker image is shipped with FTPS and SFTP support, although SFTP support should be (and will be !) shipped in a separate docker image.
+SFTP is served by openssh listening on port 22. SFTP is not properly configured to chroot users in their homedir.
+This allows an authenticated user to leak the list of your ftp users.
 
