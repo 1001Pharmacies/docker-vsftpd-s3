@@ -109,6 +109,7 @@ AllowTcpForwarding no
 Subsystem sftp internal-sftp
 ForceCommand internal-sftp -d %u
 ChrootDirectory /home
+Port 1022
 " > /etc/ssh/sshd_config
 
 # FTP sync client
