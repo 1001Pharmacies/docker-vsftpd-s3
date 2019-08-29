@@ -5,7 +5,7 @@ set -o errexit
 trap 'kill -SIGQUIT $PID' INT
 
 # VSFTPD PASV configuration
-PASV_ADDRESS=${PASV_ADDRESS:-$(timeout -t 1 wget -qO- http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null ||:)}
+PASV_ADDRESS=${PASV_ADDRESS:-$(timeout 1 wget -qO- http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null ||:)}
 PASV_MIN_PORT=${PASV_MIN_PORT:-65000}
 PASV_MAX_PORT=${PASV_MAX_PORT:-65000}
 
@@ -93,7 +93,7 @@ echo "${FTPD_USERS}" |sed 's/ /\n/g' |while read line; do
     /usr/bin/s3fs ${s3_bucket:-$S3_BUCKET} /home/${ftpd_user} -o nosuid,nonempty,nodev,allow_other,complement_stat,mp_umask=027,uid=$(id -u ${ftpd_user}),gid=$(id -g ${ftpd_user}),passwd_file=/home/${ftpd_user}/.passwd-s3fs,default_acl=${S3_ACL},retries=5
 
     # Exit docker if the s3 filesystem is not reachable anymore
-    ( crontab -l && echo "* * * * * timeout -t 3 touch /home/${ftpd_user}/.test >/dev/null 2>&1 || kill -TERM -1" ) | crontab -
+    ( crontab -l && echo "* * * * * timeout 3 touch /home/${ftpd_user}/.test >/dev/null || kill -KILL -1" ) | crontab -
 
   done
 done
